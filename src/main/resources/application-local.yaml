@@ -1,0 +1,39 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/registry
+    username: postgres
+    password: qwerty
+    
+schema:
+  name: public
+
+signature:
+  enabled: false
+
+thirdPartySystems:
+  accessToken: token
+
+excerpt:
+  url: localhost:7001
+
+dso:
+  url: https://dig-sign-ops-data-paradise-dev.apps.cicd2.mdtu-ddm.projects.epam.com
+
+request-signature-ceph:
+  http-endpoint: https://s3-openshift-storage.apps.cicd2.mdtu-ddm.projects.epam.com
+  access-key: access-key
+  secret-key: secret-key
+  bucket: bucket
+
+historic-signature-ceph:
+  http-endpoint: https://s3-openshift-storage.apps.cicd2.mdtu-ddm.projects.epam.com
+  access-key: access-key
+  secret-key: secret-key
+  bucket: bucket
+
+openshift:
+  enabled: false
+  namespace: namespace
+  parentJob:
+    name: job
+    resultField: result

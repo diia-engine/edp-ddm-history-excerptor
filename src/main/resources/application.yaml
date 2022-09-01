@@ -1,0 +1,52 @@
+spring:
+  application:
+    name: history-excerptor
+  datasource:
+    url: jdbc:postgresql://${DB_URL}:${DB_PORT:5432}/${DB_NAME}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+schema:
+  name: ${DB_SCHEMA:registry}
+  historyTableSuffix: _hst
+
+signature:
+  enabled: true
+
+thirdPartySystems:
+  accessToken: ${ACCESS_TOKEN}
+
+excerpt:
+  url: ${EXCERPT_URL}
+  statusCheck:
+    maxAttempts: 10
+
+dso:
+  url: ${DSO_URL}
+
+request-signature-ceph:
+  http-endpoint: ${REQUEST_SIGNATURE_CEPH_HTTP_ENDPOINT}
+  bucket: ${REQUEST_SIGNATURE_CEPH_BUCKET_NAME}
+  access-key: ${REQUEST_SIGNATURE_CEPH_ACCESS_KEY}
+  secret-key: ${REQUEST_SIGNATURE_CEPH_SECRET_KEY}
+
+historic-signature-ceph:
+  http-endpoint: ${HISTORIC_SIGNATURES_CEPH_HTTP_ENDPOINT}
+  bucket: ${HISTORIC_SIGNATURES_CEPH_BUCKET_NAME}
+  access-key: ${HISTORIC_SIGNATURES_CEPH_ACCESS_KEY}
+  secret-key: ${HISTORIC_SIGNATURES_CEPH_SECRET_KEY}
+
+s3:
+  config:
+    client:
+      protocol: http
+    options:
+      pathStyleAccess: true
+
+openshift:
+  enabled: true
+  namespace: ${OPENSHIFT_NAMESPACE}
+  parentJob:
+    name: ${OPENSHIFT_JOB}
+    resultField: ${OPENSHIFT_RESULT_FIELD}
