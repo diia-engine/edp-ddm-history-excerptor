@@ -22,10 +22,9 @@ import com.epam.digital.data.platform.dso.client.DigitalSignatureRestClient;
 import com.epam.digital.data.platform.dso.client.exception.BadRequestException;
 import com.epam.digital.data.platform.dso.client.exception.InternalServerErrorException;
 import com.epam.digital.data.platform.dso.client.exception.SignatureValidationException;
-import com.epam.digital.data.platform.history.model.FormDataDto;
 import com.epam.digital.data.platform.history.model.HistoryTableRowDdmInfo;
 import com.epam.digital.data.platform.history.model.UserInfo;
-import com.epam.digital.data.platform.integration.ceph.service.CephService;
+import com.epam.digital.data.platform.storage.form.service.FormDataStorageService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.RuntimeJsonMappingException;
@@ -41,23 +40,20 @@ public class UserInfoRetrieveService {
 
   private final Logger log = LoggerFactory.getLogger(UserInfoRetrieveService.class);
 
-  private final String historicSignatureBucket;
   private final boolean signatureEnabled;
   private final ObjectMapper objectMapper;
   private final DigitalSignatureRestClient digitalSignatureRestClient;
-  private final CephService historicSignatureCephService;
+  private final FormDataStorageService historicSignatureFormDataStorageService;
 
   public UserInfoRetrieveService(
-      @Value("${historic-signature-ceph.bucket}") String historicSignatureBucket,
       @Value("${signature.enabled}") boolean signatureEnabled,
       ObjectMapper objectMapper,
       DigitalSignatureRestClient digitalSignatureRestClient,
-      CephService historicSignatureCephService) {
-    this.historicSignatureBucket = historicSignatureBucket;
+      FormDataStorageService historicSignatureFormDataStorageService) {
     this.signatureEnabled = signatureEnabled;
     this.objectMapper = objectMapper;
     this.digitalSignatureRestClient = digitalSignatureRestClient;
-    this.historicSignatureCephService = historicSignatureCephService;
+    this.historicSignatureFormDataStorageService = historicSignatureFormDataStorageService;
   }
 
   public UserInfo getUserInfo(HistoryTableRowDdmInfo tableDdmInfo) {
@@ -70,7 +66,7 @@ public class UserInfoRetrieveService {
       log.error("Signature not saved. Key == null");
       return EMPTY_USER_INFO;
     }
-    var content = historicSignatureCephService.getAsString(historicSignatureBucket, key);
+    var content = historicSignatureFormDataStorageService.getFormData(key);
     if (content.isEmpty()) {
       log.error("Signature not found for key {}", key);
       return EMPTY_USER_INFO;
@@ -79,7 +75,7 @@ public class UserInfoRetrieveService {
     String signature;
     String data;
     try {
-      var formDataDto = objectMapper.readValue(content.get(), FormDataDto.class);
+      var formDataDto = content.get();
       data = objectMapper.writeValueAsString(formDataDto.getData());
       signature = formDataDto.getSignature();
     } catch (JsonProcessingException e) {

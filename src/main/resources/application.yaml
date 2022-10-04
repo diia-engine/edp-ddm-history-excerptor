@@ -25,17 +25,28 @@ excerpt:
 dso:
   url: ${DSO_URL}
 
-request-signature-ceph:
-  http-endpoint: ${REQUEST_SIGNATURE_CEPH_HTTP_ENDPOINT}
-  bucket: ${REQUEST_SIGNATURE_CEPH_BUCKET_NAME}
-  access-key: ${REQUEST_SIGNATURE_CEPH_ACCESS_KEY}
-  secret-key: ${REQUEST_SIGNATURE_CEPH_SECRET_KEY}
-
-historic-signature-ceph:
-  http-endpoint: ${HISTORIC_SIGNATURES_CEPH_HTTP_ENDPOINT}
-  bucket: ${HISTORIC_SIGNATURES_CEPH_BUCKET_NAME}
-  access-key: ${HISTORIC_SIGNATURES_CEPH_ACCESS_KEY}
-  secret-key: ${HISTORIC_SIGNATURES_CEPH_SECRET_KEY}
+storage:
+  request-signature-form-data-storage:
+    type: redis
+    backend:
+      redis:
+        password: ${REDIS_PASSWORD}
+        sentinel:
+          master: ${REDIS_MASTER}
+          nodes: ${REDIS_ENDPOINT}
+      ceph:
+        http-endpoint: ${REQUEST_SIGNATURE_CEPH_HTTP_ENDPOINT}
+        access-key: ${REQUEST_SIGNATURE_CEPH_ACCESS_KEY}
+        secret-key: ${REQUEST_SIGNATURE_CEPH_SECRET_KEY}
+        bucket: ${REQUEST_SIGNATURE_CEPH_BUCKET_NAME}
+  historic-signature-form-data-storage:
+    type: ceph
+    backend:
+      ceph:
+        http-endpoint: ${HISTORIC_SIGNATURES_CEPH_HTTP_ENDPOINT}
+        access-key: ${HISTORIC_SIGNATURES_CEPH_ACCESS_KEY}
+        secret-key: ${HISTORIC_SIGNATURES_CEPH_SECRET_KEY}
+        bucket: ${HISTORIC_SIGNATURES_CEPH_BUCKET_NAME}
 
 s3:
   config:

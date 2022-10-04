@@ -29,9 +29,12 @@ import com.epam.digital.data.platform.dso.client.exception.InternalServerErrorEx
 import com.epam.digital.data.platform.dso.client.exception.SignatureValidationException;
 import com.epam.digital.data.platform.history.model.HistoryTableRowDdmInfo;
 import com.epam.digital.data.platform.history.model.UserInfo;
-import com.epam.digital.data.platform.integration.ceph.service.CephService;
+import com.epam.digital.data.platform.storage.form.dto.FormDataDto;
+import com.epam.digital.data.platform.storage.form.service.FormDataStorageService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.LinkedHashMap;
 import java.util.Optional;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -43,14 +46,12 @@ class UserInfoRetrieveServiceTest {
 
   private static final UserInfo EMPTY_USER_INFO = new UserInfo();
   private static final ErrorDto ERROR_DTO = new ErrorDto("code", "msg", "local_msg");
-  private static final String HISTORIC_BUCKET = "bucket";
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
   private static final String DATA = "{\"data\":\"test_data\"}";
   private static final String SIGNATURE = "test_signature";
-  private static final String CEPH_KEY = "ceph_key";
-  private static final String CEPH_VALUE =
-      "{\"data\":" + DATA + ",\"signature\":\"" + SIGNATURE + "\"}";
+  private static final String STORAGE_KEY = "storage_key";
+  private static FormDataDto formDataDto;
 
   private UserInfoRetrieveService userInfoRetrieveService;
 
@@ -59,35 +60,43 @@ class UserInfoRetrieveServiceTest {
   @Mock
   private DigitalSignatureRestClient digitalSignatureRestClient;
   @Mock
-  private CephService historicSignatureCephService;
+  private FormDataStorageService historicSignatureStorageService;
+
+  @BeforeAll
+  static void beforeAll() {
+    LinkedHashMap<String, Object> data = new LinkedHashMap<>();
+    data.put("data", "test_data");
+    formDataDto = FormDataDto.builder().data(data).signature(SIGNATURE).build();
+  }
 
   @BeforeEach
   void beforeEach() {
-    userInfoRetrieveService = new UserInfoRetrieveService(HISTORIC_BUCKET, true, OBJECT_MAPPER,
-        digitalSignatureRestClient, historicSignatureCephService);
+    userInfoRetrieveService = new UserInfoRetrieveService(true, OBJECT_MAPPER,
+        digitalSignatureRestClient, historicSignatureStorageService);
 
     historyTableRowDdmInfo = new HistoryTableRowDdmInfo();
-    historyTableRowDdmInfo.setDigitalSign(CEPH_KEY);
+    historyTableRowDdmInfo.setDigitalSign(STORAGE_KEY);
   }
 
   @Test
   void shouldEnrichWithEmptyUserInfoWhenThereIsNoFileInCephBucket() {
-    when(historicSignatureCephService.getAsString(HISTORIC_BUCKET, CEPH_KEY))
+    when(historicSignatureStorageService.getFormData(STORAGE_KEY))
         .thenReturn(Optional.empty());
     assertEmptyUserInfo();
   }
 
   @Test
   void shouldEnrichWithEmptyUserInfoWhenInvalidSignature() {
-    when(historicSignatureCephService.getAsString(HISTORIC_BUCKET, CEPH_KEY))
-            .thenReturn(Optional.of(CEPH_VALUE));
+
+    when(historicSignatureStorageService.getFormData(STORAGE_KEY))
+            .thenReturn(Optional.of(formDataDto));
     assertEmptyUserInfo();
   }
 
   @Test
   void shouldEnrichWithCorrectUserInfo() {
-    when(historicSignatureCephService.getAsString(HISTORIC_BUCKET, CEPH_KEY))
-            .thenReturn(Optional.of(CEPH_VALUE));
+    when(historicSignatureStorageService.getFormData(STORAGE_KEY))
+            .thenReturn(Optional.of(formDataDto));
     when(digitalSignatureRestClient.getOwnerInfinite(new VerificationRequestDto(SIGNATURE, DATA)))
         .thenReturn(new OwnerResponseDto("name", "drfo", "edrpou"));
 
@@ -98,15 +107,15 @@ class UserInfoRetrieveServiceTest {
 
   @Test
   void shouldReturnEmptyUserInfoWhenSignatureDisabled() {
-    userInfoRetrieveService = new UserInfoRetrieveService(HISTORIC_BUCKET, false, OBJECT_MAPPER,
-            digitalSignatureRestClient, historicSignatureCephService);
+    userInfoRetrieveService = new UserInfoRetrieveService(false, OBJECT_MAPPER,
+            digitalSignatureRestClient, historicSignatureStorageService);
     assertEmptyUserInfo();
   }
 
   @Test
   void shouldReturnEmptyUserInfoWhenBadRequestException() {
-    when(historicSignatureCephService.getAsString(HISTORIC_BUCKET, CEPH_KEY))
-            .thenReturn(Optional.of(CEPH_VALUE));
+    when(historicSignatureStorageService.getFormData(STORAGE_KEY))
+            .thenReturn(Optional.of(formDataDto));
     when(digitalSignatureRestClient.getOwnerInfinite(any()))
         .thenThrow(new BadRequestException(ERROR_DTO));
     assertEmptyUserInfo();
@@ -114,8 +123,8 @@ class UserInfoRetrieveServiceTest {
 
   @Test
   void shouldReturnEmptyUserInfoWhenInternalServerErrorException() {
-    when(historicSignatureCephService.getAsString(HISTORIC_BUCKET, CEPH_KEY))
-            .thenReturn(Optional.of(CEPH_VALUE));
+    when(historicSignatureStorageService.getFormData(STORAGE_KEY))
+            .thenReturn(Optional.of(formDataDto));
     when(digitalSignatureRestClient.getOwnerInfinite(any()))
         .thenThrow(new InternalServerErrorException(ERROR_DTO));
     assertEmptyUserInfo();
@@ -123,8 +132,8 @@ class UserInfoRetrieveServiceTest {
 
   @Test
   void shouldReturnEmptyUserInfoWhenSignatureValidationException() {
-    when(historicSignatureCephService.getAsString(HISTORIC_BUCKET, CEPH_KEY))
-            .thenReturn(Optional.of(CEPH_VALUE));
+    when(historicSignatureStorageService.getFormData(STORAGE_KEY))
+            .thenReturn(Optional.of(formDataDto));
     when(digitalSignatureRestClient.getOwnerInfinite(any()))
         .thenThrow(new SignatureValidationException(ERROR_DTO));
     assertEmptyUserInfo();

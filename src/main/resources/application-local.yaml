@@ -19,17 +19,28 @@ excerpt:
 dso:
   url: https://dig-sign-ops-data-paradise-dev.apps.cicd2.mdtu-ddm.projects.epam.com
 
-request-signature-ceph:
-  http-endpoint: https://s3-openshift-storage.apps.cicd2.mdtu-ddm.projects.epam.com
-  access-key: access-key
-  secret-key: secret-key
-  bucket: bucket
-
-historic-signature-ceph:
-  http-endpoint: https://s3-openshift-storage.apps.cicd2.mdtu-ddm.projects.epam.com
-  access-key: access-key
-  secret-key: secret-key
-  bucket: bucket
+storage:
+  request-signature-form-data-storage:
+    type: redis
+    backend:
+      redis:
+        password:
+        sentinel:
+          master: mymaster
+          nodes: 127.0.0.1:26379
+      ceph:
+        http-endpoint: https://s3-openshift-storage.apps.cicd2.mdtu-ddm.projects.epam.com
+        access-key: access-key
+        secret-key: secret-key
+        bucket: bucket
+  historic-signature-form-data-storage:
+    type: ceph
+    backend:
+      ceph:
+        http-endpoint: https://s3-openshift-storage.apps.cicd2.mdtu-ddm.projects.epam.com
+        access-key: access-key
+        secret-key: secret-key
+        bucket: bucket
 
 openshift:
   enabled: false

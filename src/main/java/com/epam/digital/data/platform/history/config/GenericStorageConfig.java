@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 EPAM Systems.
+ * Copyright 2022 EPAM Systems.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,23 +16,18 @@
 
 package com.epam.digital.data.platform.history.config;
 
-import com.epam.digital.data.platform.integration.ceph.config.S3ConfigProperties;
 import com.epam.digital.data.platform.integration.ceph.factory.CephS3Factory;
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import com.epam.digital.data.platform.storage.form.factory.StorageServiceFactory;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class CephConfiguration {
+public class GenericStorageConfig {
 
   @Bean
-  @ConfigurationProperties(prefix = "s3.config")
-  public S3ConfigProperties s3ConfigProperties() {
-    return new S3ConfigProperties();
-  }
-
-  @Bean
-  public CephS3Factory cephS3Factory() {
-    return new CephS3Factory(s3ConfigProperties());
+  public StorageServiceFactory storageServiceFactory(ObjectMapper objectMapper,
+      CephS3Factory cephS3Factory) {
+    return new StorageServiceFactory(objectMapper, cephS3Factory);
   }
 }
