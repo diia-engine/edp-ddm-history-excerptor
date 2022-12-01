@@ -20,6 +20,7 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>11</java.version>
 		<spring.boot.version>2.6.1</spring.boot.version>
+		<spring-boot-maven-plugin.version>2.7.5</spring-boot-maven-plugin.version>
 		<jackson-databind.version>2.13.4</jackson-databind.version>
 		<spring.cloud.version>2021.0.0</spring.cloud.version>
 		<snakeyaml.version>1.33</snakeyaml.version>
@@ -210,6 +211,7 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<version>${spring-boot-maven-plugin.version}</version>
 				<executions>
 					<execution>
 						<goals>
