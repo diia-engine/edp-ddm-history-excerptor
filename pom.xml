@@ -25,6 +25,7 @@
 		<spring.cloud.version>2021.0.0</spring.cloud.version>
 		<snakeyaml.version>1.33</snakeyaml.version>
 		<ddm-form-data-storage.version>1.8.0.2</ddm-form-data-storage.version>
+		<postgresql.version>42.3.3</postgresql.version>
 		<sonar.coverage.exclusions>
 			**/config/**/*,
 			**/model/*
@@ -111,6 +112,7 @@
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
+			<version>${postgresql.version}</version>
 		</dependency>
 
 		<dependency>
