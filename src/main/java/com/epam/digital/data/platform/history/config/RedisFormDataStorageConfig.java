@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 EPAM Systems.
+ * Copyright 2023 EPAM Systems.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,16 @@
 
 package com.epam.digital.data.platform.history.config;
 
-import com.epam.digital.data.platform.storage.form.config.RedisStorageConfiguration;
-import com.epam.digital.data.platform.storage.form.factory.StorageServiceFactory;
-import com.epam.digital.data.platform.storage.form.service.FormDataStorageService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+
+import com.epam.digital.data.platform.storage.form.config.RedisStorageConfiguration;
+import com.epam.digital.data.platform.storage.form.factory.StorageServiceFactory;
+import com.epam.digital.data.platform.storage.form.service.FormDataStorageService;
 
 @Configuration
 public class RedisFormDataStorageConfig {
@@ -38,7 +40,14 @@ public class RedisFormDataStorageConfig {
   @Bean
   @ConditionalOnBean(name = "requestSignatureRedisFormDataStorageConfiguration")
   public FormDataStorageService requestSignatureFormDataStorageService(StorageServiceFactory factory,
+      RedisConnectionFactory redisConnectionFactory,
       RedisStorageConfiguration requestSignatureRedisFormDataStorageConfiguration) {
-    return factory.formDataStorageService(requestSignatureRedisFormDataStorageConfiguration);
+    return factory.formDataStorageService(redisConnectionFactory, requestSignatureRedisFormDataStorageConfiguration);
+  }
+
+  @Bean
+  public RedisConnectionFactory redisConnectionFactory(StorageServiceFactory factory,
+      RedisStorageConfiguration config) {
+    return factory.redisConnectionFactory(config);
   }
 }
